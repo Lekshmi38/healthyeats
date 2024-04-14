@@ -36,7 +36,7 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     host: 'localhost',
     user: process.env.sql_user,
-    password:process.env.sql_user,
+    password:process.env.sql_password,
     database: 'recipe'
   });
   
