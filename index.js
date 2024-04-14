@@ -20,8 +20,8 @@ app.set('view engine', 'ejs');
  
 const connection = mysql.createConnection({
     host: 'localhost',
-    user: 'root', // Replace with your MySQL username
-    password: '', // Replace with your MySQL password
+    user: process.env.sql_user, // Replace with your MySQL username
+    password: process.env.sql_password, // Replace with your MySQL password
     database: 'recipe'
 });
 
@@ -35,8 +35,8 @@ connection.connect(err => {
 const pool = mysql.createPool({
     connectionLimit: 10,
     host: 'localhost',
-    user: 'root',
-    password: '',
+    user: process.env.sql_user,
+    password:process.env.sql_user,
     database: 'recipe'
   });
   
