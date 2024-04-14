@@ -6,3 +6,15 @@ In addition to its recipe database, Healthy Eats features a recipe generator pow
 Furthermore, Healthy Eats includes a calorie intake calculator, which enables users to track their calorie consumption and make informed dietary decisions. The calculator calculates the total calories consumed, provides an overview of remaining calories, and offers exercise recommendations in case of overconsumption, promoting a balanced approach to health and wellness.
 
 With its focus on health-conscious alternatives, personalized recipe generation, and calorie management tools, Healthy Eats is a valuable resource for individuals striving to maintain a nutritious diet and achieve their wellness goals. 
+## Dependencies
+
+To run this project, you will need to have the following dependencies installed:
+
+- "axios"
+    "body-parser"
+    "dotenv"
+    "ejs"
+    "express"
+    "init"
+    "mysql"
+    "node-fetch"
