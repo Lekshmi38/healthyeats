@@ -1,0 +1,1 @@
+Healthy Eats is a website which helps to find the alternative healthy recipe for people with certain health issues like alternative of ladoo for diabetes patients etc.It also has recipe generating using the ingredients left with us using   
