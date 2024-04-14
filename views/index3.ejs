@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Intake Calculator</title>
+    <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .calculator {
+            width: 400px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color:#ea9815d2 ;
+           
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        button:hover {
+            background-color: #d08306ee;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calculator">
+        <h2>Calorie Intake Calculator</h2>
+        <form id="calorieForm">
+            <label for="gender">Gender:</label>
+            <select id="gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+            <label for="age">Age (years):</label>
+            <input type="number" id="age" min="0" required>
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" min="0" step="0.1" required>
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" min="0" step="0.1" required>
+            <label for="activity">Activity Level:</label>
+            <select id="activity" required>
+                <option value="1.2">Sedentary (little or no exercise)</option>
+                <option value="1.375">Lightly active (light exercise/sports 1-3 days/week)</option>
+                <option value="1.55">Moderately active (moderate exercise/sports 3-5 days/week)</option>
+                <option value="1.725">Very active (hard exercise/sports 6-7 days a week)</option>
+                <option value="1.9">Extra active (very hard exercise/sports & physical job)</option>
+            </select>
+            <div id="foodInputs">
+                <div class="food-input">
+                    <label for="foodName">Food Name:</label>
+                    <input type="text" id="foodName" name="foodName" required class="food-name">
+                    <label for="quantity">Quantity:</label>
+                    <input type="text" id="quantity" name="quantity" min="1" required class="quantity">
+                </div>
+            </div>
+            <button type="button" onclick="addFoodInput()">Add Food</button>
+            <button type="submit">Calculate Calories</button>
+        </form>
+        <div id="result">
+            <p>Total calories consumed: <span id="totalCalories"></span> kcal</p>
+            <p>Calories a person can consume: <span id="caloriesAllowed"></span> kcal</p>
+            <p>Remaining calories: <span id="remainingCalories"></span> kcal</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calorieForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+            
+            const gender = document.getElementById('gender').value;
+            const age = parseInt(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const activityLevel = parseFloat(document.getElementById('activity').value);
+
+            if (!age || !weight || !height) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const foodData = collectFoodInputs();
+
+            try {
+                const totalCaloriesConsumed = await calculateCalories(foodData, gender, age, weight, height, activityLevel);
+                const bmr = calculateBMR(gender, age, weight, height);
+                const caloriesAllowed = calculateCaloriesAllowed(bmr, activityLevel);
+                const resultElement = document.getElementById('result');
+                resultElement.innerHTML = `Total calories consumed: ${totalCaloriesConsumed.toFixed(2)} kcal<br>`;
+                resultElement.innerHTML += `Calories a person can consume: ${caloriesAllowed.toFixed(2)} kcal<br>`;
+                
+                const remainingCalories = caloriesAllowed - totalCaloriesConsumed;
+                if (remainingCalories >= 0) {
+                    resultElement.innerHTML += `Remaining calories: ${remainingCalories.toFixed(2)} kcal`;
+                } else {
+                    resultElement.innerHTML += `Over consumption: ${Math.abs(remainingCalories).toFixed(2)} kcal`;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                const resultElement = document.getElementById('result');
+                resultElement.innerHTML = `<p>Error fetching calorie: ${error.message}</p>`;
+            }
+        });
+
+        async function fetchFoodCalories(foodName, quantity) {
+            try {
+                const response = await fetch('/calorie_find', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `foodName=${encodeURIComponent(foodName)}&quantity=${encodeURIComponent(quantity)}`
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch calorie');
+                }
+
+                const data = await response.json();
+                const calorie = data.calorie;
+                return calorie;
+            } catch (error) {
+                console.error('Error:', error);
+                return null;
+            }
+        }
+
+        function collectFoodInputs() {
+            var foodInputs = document.getElementsByClassName("food-input");
+            var foodData = [];
+
+            for (var i = 0; i < foodInputs.length; i++) {
+                var foodName = foodInputs[i].getElementsByClassName("food-name")[0].value.trim();
+                var quantity = foodInputs[i].getElementsByClassName("quantity")[0].value.trim();
+
+                var foodItem = {
+                    name: foodName,
+                    quantity: quantity
+                };
+
+                foodData.push(foodItem);
+            }
+
+            return foodData;
+        }
+
+        async function calculateCalories(foodData, gender, age, weight, height, activityLevel) {
+            var totalCaloriesConsumed = 0;
+
+            for (var i = 0; i < foodData.length; i++) {
+                const foodItem = foodData[i];
+                const foodName = foodItem.name;
+                const quantity = foodItem.quantity;
+                const foodCalories = await fetchFoodCalories(foodName, quantity);
+
+                if (foodCalories !== null) {
+                    totalCaloriesConsumed += foodCalories;
+                } else {
+                    throw new Error(`Failed to fetch calories for ${foodName}`);
+                }
+            }
+
+            return totalCaloriesConsumed;
+        }
+
+        function calculateBMR(gender, age, weight, height) {
+            return gender === "male" ? 10 * weight + 6.25 * height - 5 * age + 5 : 10 * weight + 6.25 * height - 5 * age - 161;
+        }
+
+        function calculateCaloriesAllowed(bmr, activityLevel) {
+            return bmr * activityLevel;
+        }
+
+        function addFoodInput() {
+            var foodInputs = document.getElementById("foodInputs");
+            var foodCount = foodInputs.getElementsByClassName("food-input").length + 1;
+            var foodInputHtml = `<div class="food-input">`;
+            foodInputHtml += `<label for="food${foodCount}">Food Item:</label>`;
+            foodInputHtml += `<input type="text" class="food-name" placeholder="Food Name">`;
+            foodInputHtml += `<label for="quantity${foodCount}">Quantity:</label>`;
+            foodInputHtml += `<input type="text" class="quantity" placeholder="Quantity">`;
+            foodInputHtml += `</div>`;
+            foodInputs.innerHTML += foodInputHtml;
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles2.css">
+    <link href='https://fonts.googleapis.com/css?family=Plus Jakarta Sans' rel='stylesheet'>
+</head>
+<style>
+    h1{
+        margin-top: 20px;
+       padding-top: 20px ;
+       padding-left: 20px ;
+       padding-bottom: 40px;
+        border-bottom: 1px solid #c65702 ;
+box-shadow: 0px 4px 5px #f5b041af;
+font-size: 20px;
+    }
+    #recipeTips {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.recipe {
+    width: calc(33.33% - 20px); /* Adjust width as needed */
+    margin: 10px;
+    padding: 10px;
+  
+    box-sizing: border-box;
+    background-color: rgba(244, 186, 110, 0.532);
+            backdrop-filter: blur(30px);
+    
+    color: black;
+    box-shadow: 3px 3px 5px 4px rgba(151, 147, 142, 0.5);
+    border-radius: 10px;
+  
+}
+.front{
+    margin-top: 100px ;
+    display: flex;
+    justify-content: space-betweens;
+    margin-bottom: 150px;
+}
+.front img{
+    box-shadow: 0px 8px 6px #bdb8b876;
+    border-radius: 10px;
+    height: 300px;
+    padding: auto;
+    
+}
+.front p{
+ font-size: 20px;
+    line-height: 30px;
+   margin-top: 50px;
+    padding-left: 20px;
+}
+.formfind {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-bottom: 100px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 4px 3px  #91908f6c;
+}
+
+.formfind label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.formfind select,
+.formfind #alter {
+    width: calc(100% - 12px);
+    padding: 8px;
+    margin-bottom: 10px;
+   border: none;
+    border-radius: 3px;
+    background-color: rgba(183, 178, 178, 0.094);
+}
+
+.formfind button {
+    width: 100%;
+    padding: 10px;
+    background-color: #f5b041af;
+    color: black;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.formfind button:hover {
+    background-color: #b97d0cd3;
+}
+
+</style>
+<body>
+    <h1 style="font-family: Plus Jakarta Sans;" ><b><i>Health-Friendly Alternatives Finder</i></b></h1>
+      <div class="front">
+        <div>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6G4W5sGNLr-IDHrDyO_PaelLLSL41f_qzpDj1sDMUcmdPGbMK9m06e6Lghk6WLVJL1h4&usqp=CAU">
+        </div>
+        <div>
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 500; font-style: italic;">Tired of the same old veggies but need to stick to your health requirements? Our Healthy Cravings solution is here to rescue your taste buds! Whether you're managing dietary restrictions due to health issues or simply looking for a change, our Alternative Finder is your go-to guide. From savory snacks to satisfying meals, discover tasty alternatives that align with your health goals. Say goodbye to veggie boredom and hello to delicious, health-friendly options that keep you satisfied and feeling great.</p>
+        </div>
+      </div>
+    <div>
+        <div>
+            <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 500; font-style: italic;line-height: 30px;padding: 20px 20px;margin-bottom: 100px;"><b>Our Health-Friendly Alternatives Finder is designed to assist individuals with dietary restrictions in discovering suitable substitutes that mimic the taste and texture of foods they are advised to avoid due to health concerns. Whether it's managing conditions like diabetes, hypertension, or food allergies, our tool suggests alternative ingredients or products that offer similar flavors and experiences without compromising on health. From sugar-free sweets for diabetics to gluten-free options for those with celiac disease, our database provides personalized recommendations to support individuals in adhering to their dietary requirements while still enjoying delicious meals and snacks.</b></p>
+        </div>
+        <form action="/find_alternative" method="POST" enctype="multipart/form-data" class="formfind">
+            <label for="health"><b><i>Health issue</i></b></label>
+            <select id="health" name="health" required>
+                <option value="" disabled selected>Select health issue</option>
+                <!-- Options will be populated dynamically via JavaScript -->
+            </select>
+            <br><br>
+            
+            <label for="alter"><b><i>Alternative</i></b></label>
+            <input type="=text" id="alter" name="alter"></input>
+            <br><br>         
+            
+            <button type="submit">Search</button>
+          </form>
+    </div>
+    <div id="recipeTips" style="font-size: 16px;font-style: italic;">
+ 
+    </div>
+</body>
+<script>
+    document.querySelector('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+        
+        const health = document.getElementById('health').value;
+        const alter = document.getElementById('alter').value;
+        fetch('/find_alternative', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ alter: alter, health: health })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const recipeTipsDiv = document.getElementById('recipeTips');
+            recipeTipsDiv.innerHTML = ''; // Clear previous content
+            
+            if (data.length === 0) {
+                recipeTipsDiv.textContent = 'No recipes found for the specified alternative.';
+            } else {
+                data.forEach(recipe => {
+    // Create a recipe container div
+    const recipeDiv = document.createElement('div');
+    recipeDiv.classList.add('recipe');
+
+    // Set border and padding for the recipe container div
+    recipeDiv.style.marginTop = '30px';
+    recipeDiv.style.padding = '10px';
+    recipeDiv.style.marginBottom = '30px'; // Add margin between recipe divs
+    
+
+    // Create title element
+    const title = document.createElement('h3');
+    title.textContent = recipe.name;
+                    title.style.fontSize='24px';
+                   
+    // Create ingredients paragraph element
+    const ingredients = document.createElement('p');
+    ingredients.innerHTML = '<b>Ingredients:</b><br>' ;
+ingredients.style.fontFamily='Plus Jakarta Sans';
+ingredients.innerHTML+= recipe.ingredients;
+    // Create preparation paragraph element
+    const preparation = document.createElement('p');
+    preparation.innerHTML = '<strong>Preparation:</strong><br>' + recipe.preparation;
+preparation.style.fontFamily='Plus Jakarta Sans';
+    // Append title, ingredients, and preparation elements to the recipe container div
+    recipeDiv.appendChild(title);
+    recipeDiv.appendChild(ingredients);
+    recipeDiv.appendChild(preparation);
+
+    // Append the recipe container div to the recipeTipsDiv
+    recipeTipsDiv.appendChild(recipeDiv);
+});
+              
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while fetching recipes.');
+        });
+    });
+    fetch('/fetch_table_names')
+    .then(response => response.json())
+    .then(data => {
+        const healthSelect = document.getElementById('health');
+        healthSelect.innerHTML = ''; // Clear default option
+
+        data.forEach(tableName => {
+            const option = document.createElement('option');
+            option.value = tableName;
+            option.textContent = tableName;
+            healthSelect.appendChild(option);
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching table names:', error); // Log the error
+        alert('An error occurred while fetching table names.');
+    });
+
+
+
+
+
+</script>
+
+</html>

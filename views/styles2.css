@@ -1,0 +1,12 @@
+#recipeTips {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.recipe {
+    width: calc(33.33% - 20px); /* Adjust width as needed */
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
