@@ -106,6 +106,9 @@
             <p>Calories a person can consume: <span id="caloriesAllowed"></span> kcal</p>
             <p>Remaining calories: <span id="remainingCalories"></span> kcal</p>
         </div>
+        <div id="exerciseRecommendation">
+            <!-- Exercise recommendation will be displayed here -->
+        </div>
     </div>
 
     <script>
@@ -138,6 +141,9 @@
                     resultElement.innerHTML += `Remaining calories: ${remainingCalories.toFixed(2)} kcal`;
                 } else {
                     resultElement.innerHTML += `Over consumption: ${Math.abs(remainingCalories).toFixed(2)} kcal`;
+                    const exerciseRecommendation = recommendExercise(remainingCalories);
+                       const exerciseElement = document.getElementById('exerciseRecommendation');
+                         exerciseElement.innerHTML = `<p>${exerciseRecommendation}</p>`;
                 }
 
             } catch (error) {
@@ -146,7 +152,18 @@
                 resultElement.innerHTML = `<p>Error fetching calorie: ${error.message}</p>`;
             }
         });
+        function recommendExercise(remainingCalories) {
+    const caloriesPerMinute = 5; // Assuming an average of 5 calories burned per minute of exercise
+    const minutesNeeded = Math.ceil(Math.abs(remainingCalories) / caloriesPerMinute);
 
+    if (remainingCalories < 0) {
+        return `To offset overconsumption, consider ${minutesNeeded} minutes of moderate-intensity exercise, such as brisk walking or cycling.`;
+    } else if (remainingCalories > 0) {
+        return `To meet your daily calorie deficit, aim for ${minutesNeeded} minutes of cardio exercise, like jogging or swimming.`;
+    } else {
+        return `You've reached your daily calorie goal. Maintain a healthy lifestyle with regular exercise and balanced nutrition.`;
+    }
+}
         async function fetchFoodCalories(foodName, quantity) {
             try {
                 const response = await fetch('/calorie_find', {
